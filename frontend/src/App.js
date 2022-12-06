@@ -7,6 +7,7 @@ import Home from "./component/Home/Home.js"
 import { Routes } from "react-router-dom"
 import React from 'react';
 import Loader from './component/layout/Loader/Loader';
+import ProductDetails from "./component/Product/ProductDetails"
 
 
 
@@ -24,6 +25,7 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Home />}></Route>
+        <Route path="/product/:id" element={<ProductDetails/>}></Route>
       </Routes>
       <Footer />
     </Router>
