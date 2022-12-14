@@ -8,7 +8,9 @@ import { Routes } from "react-router-dom"
 import React from 'react';
 import Loader from './component/layout/Loader/Loader';
 import ProductDetails from "./component/Product/ProductDetails"
-
+import Products from "./component/Product/Products.js"
+import Search from "./component/Product/Search.js"
+import LoginSignUp from './component/User/LoginSignUp';
 
 
 function App() {
@@ -26,6 +28,10 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />}></Route>
         <Route path="/product/:id" element={<ProductDetails/>}></Route>
+        <Route path="/products" element={<Products/>}></Route>
+        <Route path="/products/:keyword" element={<Products/>}></Route>
+        <Route path="/search" element={<Search/>}></Route>
+        <Route path="/login" element={<LoginSignUp/>} />
       </Routes>
       <Footer />
     </Router>
