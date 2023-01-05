@@ -110,7 +110,7 @@ exports.getProductReviews = cacheAsyncErrors(async (req, res, next) => {
     const product = await Product.findById(req.query.id);
 
     if (!product) {
-        return next(new ErrorHander("Product not found", 404));
+        return next(new ErrorHandler("Product not found", 404));
     }
 
     res.status(200).json({
@@ -124,7 +124,7 @@ exports.deleteReview = cacheAsyncErrors(async (req, res, next) => {
     const product = await Product.findById(req.query.productId);
 
     if (!product) {
-        return next(new ErrorHander("Product not found", 404));
+        return next(new ErrorHandler("Product not found", 404));
     }
 
     const reviews = product.reviews.filter(
@@ -165,3 +165,13 @@ exports.deleteReview = cacheAsyncErrors(async (req, res, next) => {
         success: true,
     });
 });
+
+//Get All Product Admin
+exports.getAdminProducts = cacheAsyncErrors(async (req, res, next) => {
+    const products = await Product.find();
+  
+    res.status(200).json({
+      success: true,
+      products,
+    });
+  });
