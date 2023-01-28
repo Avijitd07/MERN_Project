@@ -17,7 +17,7 @@ router.route('/me/update').put(isAuthenticatedUser, updateProfile);
 // For Admin
 router.route('/admin/users').get(isAuthenticatedUser, authorizeRoles('admin'), getAllUser );
 
-router.route('/admin/users/:id').get(isAuthenticatedUser, authorizeRoles('admin'), getSingleUser ).put(isAuthenticatedUser,authorizeRoles('admin'), updateUserRoll).delete(isAuthenticatedUser,authorizeRoles('admin'), deleteUser);
+router.route('/admin/user/:id').get(isAuthenticatedUser, authorizeRoles('admin'), getSingleUser ).put(isAuthenticatedUser,authorizeRoles('admin'), updateUserRoll).delete(isAuthenticatedUser,authorizeRoles('admin'), deleteUser);
 
 
 module.exports = router; 

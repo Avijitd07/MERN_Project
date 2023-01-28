@@ -20,7 +20,10 @@ router.route('/admin/product/:id').put(isAuthenticatedUser, authorizeRoles('admi
 router.route('/product/:id').get(getProductDetails);
 
 // Review
-router.route('/review').put(isAuthenticatedUser, createProductReview).get(getProductReviews).delete(isAuthenticatedUser, deleteReview);
+// router.route('/review').put(isAuthenticatedUser, createProductReview).get(getProductReviews).delete(isAuthenticatedUser, deleteReview);
 
+router.route("/review").put(isAuthenticatedUser, createProductReview);
+
+router.route("/reviews").get(getProductReviews).delete(isAuthenticatedUser, deleteReview);
 
 module.exports = router;

@@ -2,15 +2,46 @@ const Product = require('../models/productModel');
 const ErrorHandler = require("../utils/errorhandler");
 const cacheAsyncErrors = require("../middleware/cacheAsyncErrors");
 const ApiFeatures = require('../utils/apifeatures');
+const cloudinary = require("cloudinary");
 
 
 //Create Product----> Admin
-exports.createProduct = cacheAsyncErrors(async (req, res, next) => {
+// exports.createProduct = cacheAsyncErrors(async (req, res, next) => {
 
+//     req.body.user = req.user.id;
+//     const product = await Product.create(req.body);
+
+//     res.status(201).json({ success: true, product });
+// });
+
+exports.createProduct = cacheAsyncErrors(async (req, res, next) => {
+    let images = [];
+
+    if (typeof req.body.images === "string") {
+        images.push(req.body.images);
+    } else {
+        images = req.body.images;
+    }
+
+    const imagesLinks = [];
+
+    for (let i = 0; i < images.length; i++) {
+        const result = await cloudinary.v2.uploader.upload(images[i], {
+            folder: "products",
+        });
+
+        imagesLinks.push({
+            public_id: result.public_id,
+            url: result.secure_url,
+        });
+    }
+
+    req.body.images = imagesLinks;
     req.body.user = req.user.id;
+
     const product = await Product.create(req.body);
 
-    res.status(201).json({ success: true, product });
+    res.status(201).json({ success: true, product, });
 });
 
 //Get All Product
@@ -18,10 +49,10 @@ exports.getAllProducts = cacheAsyncErrors(async (req, res, next) => {
     const resultPerPage = 6;
     const productsCount = await Product.countDocuments();
     const apiFeature = new ApiFeatures(Product.find(), req.query).search().filter().pagination(resultPerPage);
-    
+
     const products = await apiFeature.query;
 
-    res.status(200).json({ success: true, products, productsCount,resultPerPage });
+    res.status(200).json({ success: true, products, productsCount, resultPerPage });
 });
 
 //Get Product Details
@@ -37,16 +68,66 @@ exports.getProductDetails = cacheAsyncErrors(async (req, res, next) => {
 });
 
 //Update Product----> Admin
+// exports.updateProducts = cacheAsyncErrors(async (req, res, next) => {
+//     let product = await Product.findById(req.params.id);
+
+//     if (!product) {
+//         return next(new ErrorHandler('Product not found', 404));
+//     }
+
+//     product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true, usefindAndModify: false })
+
+//     res.status(200).json({ success: true, product });
+// });
+
 exports.updateProducts = cacheAsyncErrors(async (req, res, next) => {
     let product = await Product.findById(req.params.id);
 
     if (!product) {
-        return next(new ErrorHandler('Product not found', 404));
+        return next(new ErrorHandler("Product not found", 404));
     }
 
-    product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true, usefindAndModify: false })
+    // Images Start Here
+    let images = [];
 
-    res.status(200).json({ success: true, product });
+    if (typeof req.body.images === "string") {
+        images.push(req.body.images);
+    } else {
+        images = req.body.images;
+    }
+
+    if (images !== undefined) {
+        // Deleting Images From Cloudinary
+        for (let i = 0; i < product.images.length; i++) {
+            await cloudinary.v2.uploader.destroy(product.images[i].public_id);
+        }
+
+        const imagesLinks = [];
+
+        for (let i = 0; i < images.length; i++) {
+            const result = await cloudinary.v2.uploader.upload(images[i], {
+                folder: "products",
+            });
+
+            imagesLinks.push({
+                public_id: result.public_id,
+                url: result.secure_url,
+            });
+        }
+
+        req.body.images = imagesLinks;
+    }
+
+    product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true,
+        useFindAndModify: false,
+    });
+
+    res.status(200).json({
+        success: true,
+        product,
+    });
 });
 
 //Remove Product----> Admin
@@ -169,9 +250,9 @@ exports.deleteReview = cacheAsyncErrors(async (req, res, next) => {
 //Get All Product Admin
 exports.getAdminProducts = cacheAsyncErrors(async (req, res, next) => {
     const products = await Product.find();
-  
+
     res.status(200).json({
-      success: true,
-      products,
+        success: true,
+        products,
     });
-  });
+});
